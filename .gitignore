@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb~
+
+# Environment
+.env
+.venv
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large model artifacts (regeneratable from notebook)
+*.joblib
+!feature_names.joblib
+!threshold.joblib
+!encoders.joblib
+!scaler.joblib
+!best_model.joblib
+!num_cols.joblib
+!cat_cols.joblib
+!high_value_threshold.joblib
+
+# Data files (regeneratable)
+*_test.joblib
+*_train.joblib
+cv_*.joblib
+threshold_analysis.joblib
+perm_importance.joblib
+rank_df.joblib
+evaluation_results.joblib
+test_preds.joblib
+test_probs.joblib
+y_test.joblib
+best_models.joblib
+
+# Output CSV (regeneratable)
+churn_risk_output.csv
+
+# Notebook duplicates
+* (2).ipynb
+* (copy).ipynb
+
+# PowerBI export (text file, keep if needed)
+# PowerBI_DAX_Measures.txt
+
+# Old app versions
+app (1).py

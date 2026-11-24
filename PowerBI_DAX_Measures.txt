@@ -1,0 +1,101 @@
+
+-- POWER BI DAX MEASURES SPECIFICATION
+-- Copy these into Power BI Desktop > Modeling > New Measure
+
+-- 1. CHURN RATE
+Churn Rate = 
+DIVIDE(
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[Churn] = 1),
+    COUNTROWS('ChurnData')
+)
+
+-- 2. TOTAL CUSTOMERS
+Total Customers = COUNTROWS('ChurnData')
+
+-- 3. CHURNED CUSTOMERS
+Churned Customers = CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[Churn] = 1)
+
+-- 4. MONTHLY REVENUE AT RISK
+Monthly Revenue at Risk = SUMX('ChurnData', 'ChurnData'[MonthlyCharges] * 'ChurnData'[churn_probability])
+
+-- 5. ANNUAL REVENUE AT RISK
+Annual Revenue at Risk = [Monthly Revenue at Risk] * 12
+
+-- 6. HIGH-RISK CUSTOMERS
+High Risk Customers = CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[risk_category] = "High")
+
+-- 7. HIGH-RISK REVENUE
+High Risk Revenue = CALCULATE(SUM('ChurnData'[revenue_at_risk_monthly]), 'ChurnData'[risk_category] = "High")
+
+-- 8. CHURN RATE BY CONTRACT
+Churn Rate by Contract = 
+DIVIDE(
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[Churn] = 1),
+    CALCULATE(COUNTROWS('ChurnData'), ALLEXCEPT('ChurnData', 'ChurnData'[Contract]))
+)
+
+-- 9. CHURN RATE BY TENURE BAND
+Churn Rate by Tenure Band = 
+DIVIDE(
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[Churn] = 1),
+    CALCULATE(COUNTROWS('ChurnData'), ALLEXCEPT('ChurnData', 'ChurnData'[tenure_band]))
+)
+
+-- 10. CHURN RATE BY PAYMENT METHOD
+Churn Rate by Payment Method = 
+DIVIDE(
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[Churn] = 1),
+    CALCULATE(COUNTROWS('ChurnData'), ALLEXCEPT('ChurnData', 'ChurnData'[PaymentMethod]))
+)
+
+-- 11. RETENTION ROI (if intervention cost known)
+-- Assumption: $50 intervention cost per customer, 30% save rate
+Retention ROI = 
+VAR InterventionCost = 50
+VAR SaveRate = 0.30
+VAR CustomersTargeted = [High Risk Customers]
+VAR MonthlyRevenueSaved = [High Risk Revenue] * SaveRate
+VAR AnnualRevenueSaved = MonthlyRevenueSaved * 12
+VAR TotalCost = CustomersTargeted * InterventionCost
+RETURN
+DIVIDE(AnnualRevenueSaved - TotalCost, TotalCost)
+
+-- 12. AVERAGE CHURN PROBABILITY
+Avg Churn Probability = AVERAGE('ChurnData'[churn_probability])
+
+-- 13. CUSTOMER LIFETIME VALUE (simplified)
+Avg Customer Lifetime Value = 
+DIVIDE(
+    SUM('ChurnData'[TotalCharges]),
+    COUNTROWS('ChurnData')
+)
+
+-- 14. TENURE DISTRIBUTION
+Avg Tenure = AVERAGE('ChurnData'[tenure])
+
+-- 15. MONTHLY CHARGES DISTRIBUTION
+Avg Monthly Charges = AVERAGE('ChurnData'[MonthlyCharges])
+
+-- 16. CHURN RATE BY INTERNET SERVICE
+Churn Rate by Internet Service = 
+DIVIDE(
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[Churn] = 1),
+    CALCULATE(COUNTROWS('ChurnData'), ALLEXCEPT('ChurnData', 'ChurnData'[InternetService]))
+)
+
+-- 17. PREDICTED CHURNERS AT CAPACITY
+Predicted Churners at Capacity = CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[churn_risk_score] = 1)
+
+-- 18. PRECISION AT CAPACITY
+Precision at Capacity = 
+DIVIDE(
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[churn_risk_score] = 1, 'ChurnData'[Churn] = 1),
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[churn_risk_score] = 1)
+)
+
+-- 19. RECALL AT CAPACITY
+Recall at Capacity = 
+DIVIDE(
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[churn_risk_score] = 1, 'ChurnData'[Churn] = 1),
+    CALCULATE(COUNTROWS('ChurnData'), 'ChurnData'[Churn] = 1)
+)
